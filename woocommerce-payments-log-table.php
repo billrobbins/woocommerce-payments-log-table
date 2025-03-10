@@ -179,9 +179,27 @@ class WC_Payments_Log_Table {
 
         switch ( $gateway ) {
             case 'stripe':
+                // Stripe stores the refund ID as a single value in the parent order meta.
                 return $parent_order->get_meta( '_stripe_refund_id' );
             case 'woocommerce_payments':
+                // WooCommerce Payments stores the refund ID in the refund's meta.
                 return $refund->get_meta( '_wcpay_refund_id' );
+            case 'bd-credit-card':
+                // The BD Credit Card Gateway stores the refund ID in the refund's meta.
+                return $refund->get_meta( '_bd_receipt_id' );
+            case 'apple_in_app_purchase':
+                // The Apple In-App Purchase Gateway stores the refund ID in the parent order meta.
+                return  $parent_order->get_meta( '_apple_refund_id' );
+            case 'android_in_app_purchase':
+                // The Android In-App Purchase Gateway does not store a refund ID.
+                return null;
+            case 'ppcp-gateway':
+                // PayPal stores the refund IDs as an array in the parent order meta.
+                $refund_ids = $parent_order->get_meta( '_ppcp_refunds' );
+                if ( is_array( $refund_ids ) && ! empty( $refund_ids ) ) {
+                    return current( $refund_ids );
+                }
+                return null;
             default:
                 return null;
         }
