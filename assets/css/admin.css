@@ -1,0 +1,75 @@
+#wc_payments_log_history .inside {
+    margin: 0;
+    padding: 0;
+}
+
+#wc_payments_log_history .wc-order-totals {
+    width: 100%;
+    text-align: left;
+    border-spacing: 0;
+}
+
+#wc_payments_log_history .wc-order-totals th {
+    padding: 1em;
+    font-weight: 600;
+    color: #2c3338;
+    border-bottom: 1px solid #E5E5E5;
+    text-align: left;
+}
+
+#wc_payments_log_history .wc-order-totals td {
+    padding: 1em;
+    vertical-align: middle;
+    border-bottom: 1px solid #E5E5E5;
+}
+
+#wc_payments_log_history .wc-order-totals .amount {
+    text-align: right;
+}
+
+#wc_payments_log_history .wc-order-totals tr.meta {
+    background: #f8f9fa;
+}
+
+#wc_payments_log_history .wc-order-totals tr.meta td {
+    padding: 0.7em 1em;
+}
+
+#wc_payments_log_history .wc-order-totals tr.meta td.description {
+    color: #50575e;
+    font-size: 0.92em;
+    font-style: italic;
+}
+
+#wc_payments_log_history .order-status {
+    display: inline-flex;
+    line-height: 1.9em;
+    color: #777;
+    background: #e5e5e5;
+    border-radius: 3px;
+    border-bottom: 1px solid rgba(0,0,0,.05);
+    cursor: inherit !important;
+    white-space: nowrap;
+    max-width: 100%;
+    padding: 0 0.8em;
+}
+
+#wc_payments_log_history .order-status.status-processing {
+    background: #c6e1c6;
+    color: #5b841b;
+}
+
+#wc_payments_log_history .order-status.status-refunded {
+    background: #f8dda7;
+    color: #94660c;
+}
+
+#wc_payments_log_history .order-status > span {
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#wc_payments_log_history .wc-order-totals td:last-child {
+    font-family: Monaco, Consolas, "Andale Mono", "DejaVu Sans Mono", monospace;
+} 

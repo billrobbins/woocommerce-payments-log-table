@@ -1,0 +1,45 @@
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Composer
+vendor/
+composer.phar
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Build files
+*.zip
+*.tar.gz
+*.tar
+dist/
+build/
+
+# WordPress specific
+*.log
+wp-config.php
+wp-content/advanced-cache.php
+wp-content/backup-db/
+wp-content/backups/
+wp-content/blogs.dir/
+wp-content/cache/
+wp-content/upgrade/
+wp-content/uploads/
+wp-content/mu-plugins/
+wp-content/wp-cache-config.php
+wp-content/plugins/hello.php
+
+# Unit tests
+/tmp
+/tests/bin/tmp
+.phpunit.result.cache
+.phpcs.cache 
