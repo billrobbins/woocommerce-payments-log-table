@@ -310,13 +310,14 @@ class WC_Payments_Log_Table {
     private function validate_data( array $data ): bool {
         $errors          = [];
         $required_fields = [
-            'user_id'         => 'integer',
-            'order_id'        => 'integer',
-            'event_type'      => 'string',
-            'currency'        => 'string',
-            'payment_amount'  => 'numeric',
-            'payment_gateway' => 'string',
-            'payment_method'  => 'string',
+            'user_id'          => 'integer',
+            'order_id'         => 'integer',
+            'event_type'       => 'string',
+            'currency'         => 'string',
+            'payment_amount'   => 'numeric',
+            'payment_gateway'  => 'string',
+            'payment_method'   => 'string',
+            'payment_metadata' => 'json',
         ];
 
         foreach ( $required_fields as $field => $type ) {
@@ -341,22 +342,19 @@ class WC_Payments_Log_Table {
                         $errors[] = sprintf( 'Field %s must be a string', $field );
                     }
                     break;
+                case 'json':
+                    if ( is_string( $data[ $field ] ) ) {
+                        json_decode( $data[ $field ] );
+                        if ( json_last_error() !== JSON_ERROR_NONE ) {
+                            $errors[] = sprintf( 'Field %s must be valid JSON: %s', $field, json_last_error_msg() );
+                        }
+                    }
+                    break;
             }
         }
 
         if ( isset( $data['event_type'] ) && ! in_array ( $data['event_type'], [ self::EVENT_TYPE_PAYMENT, self::EVENT_TYPE_REFUND ], true ) ) {
             $errors[] = sprintf( 'Invalid event_type: %s', $data['event_type'] );
-        }
-
-        if ( isset( $data['payment_metadata'] ) ) {
-            if ( ! is_string( $data['payment_metadata'] ) ) {
-                $errors[] = 'payment_metadata must be a JSON string';
-            } else {
-                json_decode( $data['payment_metadata'] );
-                if ( json_last_error() !== JSON_ERROR_NONE ) {
-                    $errors[] = 'payment_metadata must be valid JSON';
-                }
-            }
         }
 
         if ( ! empty( $errors ) ) {
