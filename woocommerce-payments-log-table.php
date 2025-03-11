@@ -86,40 +86,6 @@ class WC_Payments_Log_Table {
     }
 
     /**
-     * On install, create the database table.
-     *
-     * @return void
-     */
-    public function install(): void {
-        global $wpdb;
-
-        $table_name      = $wpdb->prefix . self::TABLE_NAME;
-        $charset_collate = $wpdb->get_charset_collate();
-
-        $sql = "CREATE TABLE IF NOT EXISTS {$table_name} (
-            payments_events_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-            user_id BIGINT UNSIGNED NOT NULL,
-            order_id BIGINT UNSIGNED NOT NULL,
-            event_type VARCHAR(20) NOT NULL,
-            event_ts DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            currency VARCHAR(3) NOT NULL,
-            payment_amount DECIMAL(19,4) NOT NULL,
-            gateway_transaction_id VARCHAR(255),
-            payment_gateway VARCHAR(100) NOT NULL,
-            payment_method VARCHAR(100) NOT NULL,
-            payment_metadata JSON,
-            PRIMARY KEY (payments_events_id),
-            KEY order_id (order_id),
-            KEY user_id (user_id),
-            KEY event_type (event_type),
-            KEY event_ts (event_ts)
-        ) $charset_collate;";
-
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-        dbDelta( $sql );
-    }
-
-    /**
      * Log a successful payment
      *
      * @param int $order_id The WooCommerce order ID
@@ -144,8 +110,8 @@ class WC_Payments_Log_Table {
             'payment_method'         => $order->get_payment_method_title(),
             'payment_metadata'       => wp_json_encode(
                 [
-                    'created_via'          => $order->get_created_via(),
-                    'date_paid'            => $order->get_date_paid() ? $order->get_date_paid()->format('Y-m-d H:i:s') : null,
+                    'created_via' => $order->get_created_via(),
+                    'date_paid'   => $order->get_date_paid() ? $order->get_date_paid()->format('Y-m-d H:i:s') : null,
                 ]
             )
         ];
@@ -187,10 +153,10 @@ class WC_Payments_Log_Table {
             'payment_method'         => $parent_order->get_payment_method_title(),
             'payment_metadata'       => wp_json_encode(
                 [
-                    'refund_id'            => $refund_id,
-                    'refund_reason'        => $refund->get_reason(),
-                    'refund_method'        => $refund_method,
-                    'refunded_by'          => $refund->get_refunded_by(),
+                    'refund_id'     => $refund_id,
+                    'refund_reason' => $refund->get_reason(),
+                    'refund_method' => $refund_method,
+                    'refunded_by'   => $refund->get_refunded_by(),
                 ]
             )
         ];
@@ -368,6 +334,40 @@ class WC_Payments_Log_Table {
         }
 
         return true;
+    }
+
+    /**
+     * On install, create the database table.
+     *
+     * @return void
+     */
+    public function install(): void {
+        global $wpdb;
+
+        $table_name      = $wpdb->prefix . self::TABLE_NAME;
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE IF NOT EXISTS {$table_name} (
+            payments_events_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            user_id BIGINT UNSIGNED NOT NULL,
+            order_id BIGINT UNSIGNED NOT NULL,
+            event_type VARCHAR(20) NOT NULL,
+            event_ts DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            currency VARCHAR(3) NOT NULL,
+            payment_amount DECIMAL(19,4) NOT NULL,
+            gateway_transaction_id VARCHAR(255),
+            payment_gateway VARCHAR(100) NOT NULL,
+            payment_method VARCHAR(100) NOT NULL,
+            payment_metadata JSON,
+            PRIMARY KEY (payments_events_id),
+            KEY order_id (order_id),
+            KEY user_id (user_id),
+            KEY event_type (event_type),
+            KEY event_ts (event_ts)
+        ) $charset_collate;";
+
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        dbDelta( $sql );
     }
 }
 
