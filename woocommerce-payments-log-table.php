@@ -102,12 +102,90 @@ class WC_Payments_Log_Table {
     }
 
     /**
+     * Validate data before insertion
+     *
+     * @param array $data The data to validate
+     * @return bool Whether the data is valid
+     */
+    private static function validate_data( array $data ): bool {
+        $errors          = [];
+        $required_fields = [
+            'user_id'         => 'integer',
+            'order_id'        => 'integer',
+            'event_type'      => 'string',
+            'currency'        => 'string',
+            'payment_amount'  => 'numeric',
+            'payment_gateway' => 'string',
+            'payment_method'  => 'string',
+        ];
+
+        foreach ( $required_fields as $field => $type ) {
+            if ( ! isset( $data[ $field ] ) ) {
+                $errors[] = sprintf( 'Missing required field: %s', $field );
+                continue;
+            }
+
+            switch ( $type ) {
+                case 'integer':
+                    if ( ! is_int( $data[$field] ) && ! ctype_digit( ( string ) $data[ $field ] ) ) {
+                        $errors[] = sprintf( 'Field %s must be an integer', $field );
+                    }
+                    break;
+                case 'numeric':
+                    if ( ! is_numeric( $data[ $field ] ) ) {
+                        $errors[] = sprintf( 'Field %s must be numeric', $field );
+                    }
+                    break;
+                case 'string':
+                    if ( ! is_string( $data[ $field ] ) ) {
+                        $errors[] = sprintf( 'Field %s must be a string', $field );
+                    }
+                    break;
+            }
+        }
+
+        // Validate event_type
+        if ( isset( $data['event_type'] ) && ! in_array ( $data['event_type'], [ self::EVENT_TYPE_PAYMENT, self::EVENT_TYPE_REFUND ], true ) ) {
+            $errors[] = sprintf( 'Invalid event_type: %s', $data['event_type'] );
+        }
+
+        // Validate metadata is valid JSON if present
+        if ( isset( $data['payment_metadata'] ) ) {
+            if ( ! is_string( $data['payment_metadata'] ) ) {
+                $errors[] = 'payment_metadata must be a JSON string';
+            } else {
+                json_decode( $data['payment_metadata'] );
+                if ( json_last_error() !== JSON_ERROR_NONE ) {
+                    $errors[] = 'payment_metadata must be valid JSON';
+                }
+            }
+        }
+
+        if ( ! empty( $errors ) ) {
+            error_log(
+                sprintf(
+                    'WC Payments Log Table: Data validation failed: %s',
+                    implode( ', ', $errors )
+                )
+            );
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Insert data into the payments log table with transaction handling
      *
      * @param array $data The data to insert
      * @return bool Whether the insert was successful
      */
     private static function insert_with_transaction( array $data ): bool {
+
+        if ( ! self::validate_data( $data ) ) {
+            return false;
+        }
+
         global $wpdb;
         $table_name = $wpdb->prefix . self::TABLE_NAME;
 
@@ -156,13 +234,13 @@ class WC_Payments_Log_Table {
             'payment_method'         => $order->get_payment_method_title(),
             'payment_metadata'       => wp_json_encode(
                 [
-                    'payment_method_title' => $order->get_payment_method_title(),
                     'created_via'          => $order->get_created_via(),
-                    'status'               => $order->get_status(),
                     'date_paid'            => $order->get_date_paid() ? $order->get_date_paid()->format('Y-m-d H:i:s') : null,
                 ]
             )
         ];
+
+        $data = apply_filters( 'wc_payments_log_payment_data', $data, $order );
 
         self::insert_with_transaction( $data );
     }
@@ -223,10 +301,10 @@ class WC_Payments_Log_Table {
             return;
         }
 
-        // Get gateway-specific refund transaction ID
+        // Get gateway-specific refund transaction ID.
         $refund_transaction_id = self::get_refund_transaction_id( $refund, $parent_order );
 
-        // Determine refund method
+        // Determine refund method.
         $refund_method = $refund->get_refunded_payment() ? 'gateway_api' : 'manual';
 
         $data = [
@@ -244,10 +322,11 @@ class WC_Payments_Log_Table {
                     'refund_reason'        => $refund->get_reason(),
                     'refund_method'        => $refund_method,
                     'refunded_by'          => $refund->get_refunded_by(),
-                    'order_transaction_id' => $parent_order->get_transaction_id(),
                 ]
             )
         ];
+
+        $data = apply_filters( 'wc_payments_log_refund_data', $data, $refund, $parent_order );
 
         self::insert_with_transaction( $data );
     }
