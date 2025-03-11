@@ -72,7 +72,7 @@ class WC_Payments_Log_Table {
     public function load_files(): void {
         require_once plugin_dir_path( WC_PAYMENTS_LOG_TABLE_FILE ) . 'includes/class-payment-history-metabox.php';
         
-        WC_Payments_Log_Table_Metabox::init();
+        new WC_Payments_Log_Table_Metabox( $this );
     }
 
     /**
@@ -371,5 +371,13 @@ class WC_Payments_Log_Table {
     }
 }
 
-// Initialize the plugin
-new WC_Payments_Log_Table( wc_get_logger() );
+/**
+ * Initialize the plugin
+ *
+ * @return void
+ */
+function wc_payments_log_table_init(): void {
+    new WC_Payments_Log_Table( wc_get_logger() );
+}
+
+add_action( 'plugins_loaded', 'wc_payments_log_table_init' );

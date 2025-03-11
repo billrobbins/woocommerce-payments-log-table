@@ -9,13 +9,30 @@ defined( 'ABSPATH' ) || exit;
  */
 class WC_Payments_Log_Table_Metabox {
     /**
+     * The payments log table instance
+     *
+     * @var WC_Payments_Log_Table
+     */
+    private $payments_log_table;
+
+    /**
+     * Constructor
+     *
+     * @param WC_Payments_Log_Table $payments_log_table The payments log table instance
+     */
+    public function __construct( WC_Payments_Log_Table $payments_log_table ) {
+        $this->payments_log_table = $payments_log_table;
+        $this->init();
+    }
+
+    /**
      * Initialize the metabox
      *
      * @return void
      */
-    public static function init(): void {
-        add_action( 'add_meta_boxes', [ self::class, 'register_metabox' ] );
-        add_action( 'admin_enqueue_scripts', [ self::class, 'enqueue_styles' ] );
+    public function init(): void {
+        add_action( 'add_meta_boxes', [ $this, 'register_metabox' ] );
+        add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_styles' ] );
     }
 
     /**
@@ -23,11 +40,11 @@ class WC_Payments_Log_Table_Metabox {
      *
      * @return void
      */
-    public static function register_metabox(): void {
+    public function register_metabox(): void {
         add_meta_box(
             'wc_payments_log_history',
             __( 'Payment History', 'wc-payments-log-table' ),
-            [ self::class, 'render_metabox' ],
+            [ $this, 'render_metabox' ],
             'woocommerce_page_wc-orders',
             'normal',
             'default'
@@ -39,7 +56,7 @@ class WC_Payments_Log_Table_Metabox {
      *
      * @return void
      */
-    public static function enqueue_styles(): void {
+    public function enqueue_styles(): void {
         $screen = get_current_screen();
         if ( 'woocommerce_page_wc-orders' !== $screen->id ) {
             return;
@@ -56,11 +73,11 @@ class WC_Payments_Log_Table_Metabox {
     /**
      * Display payment history metabox in order admin
      *
-     * @param WC_Order $order The order object
+     * @param \WC_Order $order The order object
      * @return void
      */
-    public static function render_metabox( WC_Order $order ): void {
-        $events = WC_Payments_Log_Table::get_order_payment_events( $order->get_id() );
+    public function render_metabox( \WC_Order $order ): void {
+        $events = $this->payments_log_table->get_order_payment_events( $order->get_id() );
 
         ?>
         <div class="woocommerce-order-data">
