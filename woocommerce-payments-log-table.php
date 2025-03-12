@@ -12,11 +12,10 @@ defined( 'ABSPATH' ) || exit;
 
 define( 'WC_PAYMENTS_LOG_TABLE_FILE', __FILE__ );
 define( 'WC_PAYMENTS_LOG_TABLE_VERSION', '1.0.0' );
-define( 'WC_PAYMENTS_LOG_TABLE_DB_VERSION', '1.0.0' );
 define( 'WC_PAYMENTS_LOG_TABLE_NAME', 'wc_payments_log' );
 
 /**
- * Initialize the plugin
+ * Initialize the plugin.
  *
  * @return void
  */
@@ -36,7 +35,7 @@ function wc_payments_log_table_init(): void {
 add_action( 'plugins_loaded', 'wc_payments_log_table_init' );
 
 /**
- * Install the plugin database table
+ * Install the log database table if it doesn't exist.
  *
  * @return void
  */

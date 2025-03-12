@@ -15,15 +15,15 @@ class WC_Payments_Log_Table_Metabox {
 	 *
 	 * @var WC_Payments_Logger
 	 */
-	private $payments_log_table;
+	private $payments_logger;
 
 	/**
 	 * Class constructor
 	 *
-	 * @param WC_Payments_Logger $payments_log_table Logger instance
+	 * @param WC_Payments_Logger $payments_logger Logger instance
 	 */
-	public function __construct( WC_Payments_Logger $payments_log_table ) {
-		$this->payments_log_table = $payments_log_table;
+	public function __construct( WC_Payments_Logger $payments_logger ) {
+		$this->payments_logger = $payments_logger;
 		$this->init();
 	}
 
@@ -79,7 +79,7 @@ class WC_Payments_Log_Table_Metabox {
 	 * @return void
 	 */
 	public function render_metabox( WC_Order $order ): void {
-		$events = $this->payments_log_table->get_order_payment_events( $order->get_id() );
+		$events = $this->payments_logger->get_order_payment_events( $order->get_id() );
 
 		?>
 		<div class="woocommerce-order-data">
@@ -111,13 +111,6 @@ class WC_Payments_Log_Table_Metabox {
 								$created_via = 'gateway_api' === $metadata['refund_method']
 									? __( 'Gateway API', 'wc-payments-log-table' )
 									: __( 'Manual', 'wc-payments-log-table' );
-
-								if ( ! empty( $metadata['refunded_by'] ) ) {
-									$user_data = get_userdata( $metadata['refunded_by'] );
-									if ( $user_data ) {
-										$created_via .= ' (' . esc_html( $user_data->display_name ) . ')';
-									}
-								}
 							}
 							?>
 							<tr>
